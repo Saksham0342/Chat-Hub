@@ -20,10 +20,22 @@ const app = express();
 app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use(express.json());
 app.use(cookieParser());
+const allowedOrigins = [
+  "http://localhost:5173",  // for local dev
+  "https://chat-hub-gohs.vercel.app"
+];
+
 app.use(cors({
-  credentials: true,
-  origin: process.env.CLIENT_URL,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
 }));
+
 
 async function getUserDataFromRequest(req) {
   return new Promise((resolve, reject) => {
